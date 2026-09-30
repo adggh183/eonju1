@@ -1,291 +1,597 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>오늘 뭐 먹지? | 점심 메뉴 추천</title>
-    <style>
-        :root {
-            --primary-color: #ff6b6b;
-            --secondary-color: #4ecdc4;
-            --dark-color: #2d3436;
-            --light-color: #f7f9fc;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>디지털 디톡스 타이머 PRO</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
-        }
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #f4f6f8;
+      color: #333333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
 
-        body {
-            background-color: var(--light-color);
-            color: var(--dark-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
+    /* 상단 통계 바 */
+    .top-bar {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #718096;
+    }
 
-        .container {
-            background: white;
-            width: 100%;
-            max-width: 480px;
-            padding: 2rem;
-            border-radius: 20px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
-            text-align: center;
-        }
+    .badge {
+      background: #ffffff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+    }
 
-        h1 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-            color: var(--dark-color);
-        }
+    /* 설정 및 타이머 메인 컨테이너 */
+    .container {
+      background-color: #ffffff;
+      padding: 2.5rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      text-align: center;
+      max-width: 440px;
+      width: 90%;
+      z-index: 10;
+    }
 
-        p.subtitle {
-            font-size: 0.95rem;
-            color: #7f8c8d;
-            margin-bottom: 1.5rem;
-        }
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 0.5rem;
+      color: #2c3e50;
+    }
 
-        /* 카테고리 필터 버튼 */
-        .category-group {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
+    .subtitle {
+      font-size: 0.85rem;
+      color: #718096;
+      margin-bottom: 1.8rem;
+    }
 
-        .cat-btn {
-            border: 1px solid #e0e0e0;
-            background: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
+    .time-inputs {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 1.5rem;
+    }
 
-        .cat-btn.active {
-            background: var(--dark-color);
-            color: white;
-            border-color: var(--dark-color);
-        }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-        /* 메뉴 결과 디스플레이 */
-        .result-box {
-            background: #fff5f5;
-            border: 2px dashed var(--primary-color);
-            border-radius: 15px;
-            padding: 2.5rem 1rem;
-            margin-bottom: 1.5rem;
-            min-height: 160px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
+    .input-group input {
+      width: 75px;
+      height: 55px;
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: bold;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      outline: none;
+      background: #ffffff;
+      color: #2d3748;
+      transition: border-color 0.2s;
+    }
 
-        .menu-category {
-            font-size: 0.85rem;
-            color: var(--primary-color);
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
+    .input-group input:focus {
+      border-color: #4a5568;
+    }
 
-        .menu-name {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: var(--dark-color);
-            word-break: keep-all;
-        }
+    .input-group label {
+      font-size: 0.8rem;
+      color: #718096;
+      margin-top: 6px;
+    }
 
-        /* 메인 추천 버튼 */
-        .pick-btn {
-            width: 100%;
-            padding: 15px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: white;
-            background: var(--primary-color);
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
-            transition: transform 0.1s, background 0.2s;
-        }
+    /* 대형 카운트다운 타이머 디스플레이 */
+    .timer-display {
+      font-size: 3.5rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: #2d3748;
+      margin: 1.5rem 0;
+      font-variant-numeric: tabular-nums;
+    }
 
-        .pick-btn:hover {
-            background: #ee5253;
-        }
+    .progress-bar-bg {
+      width: 100%;
+      height: 8px;
+      background: #edf2f7;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
 
-        .pick-btn:active {
-            transform: scale(0.98);
-        }
+    .progress-bar-fill {
+      height: 100%;
+      width: 100%;
+      background: #4a5568;
+      transition: width 1s linear;
+    }
 
-        /* 메뉴 직접 추가 영역 */
-        .add-box {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #eee;
-            display: flex;
-            gap: 8px;
-        }
+    .btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      color: white;
+      background-color: #4a5568;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
 
-        .add-box input, .add-box select {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 0.9rem;
-        }
+    .btn:hover {
+      background-color: #2d3748;
+    }
 
-        .add-box input[type="text"] {
-            flex: 1;
-        }
+    /* 화면 전체 경고 반짝임 레이어 */
+    .warning-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(255, 0, 0, 0.4);
+      pointer-events: none;
+      z-index: 500;
+      animation: fullScreenFlash 0.5s infinite alternate;
+      display: none;
+    }
 
-        .add-btn {
-            background: var(--secondary-color);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+    @keyframes fullScreenFlash {
+      0% { opacity: 0.1; }
+      100% { opacity: 0.85; }
+    }
 
-        .add-btn:hover {
-            background: #3bb7b0;
-        }
-    </style>
+    /* 눈이 편안한 어두운 숲속 잠금 화면 */
+    .lock-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #1e2d24;
+      color: #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .tree-icon {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      animation: growTree 1.5s ease-out;
+    }
+
+    @keyframes growTree {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .quote-box {
+      max-width: 580px;
+      margin-bottom: 2rem;
+    }
+
+    .quote-box p {
+      font-size: 1.35rem;
+      line-height: 1.7;
+      word-break: keep-all;
+      color: #e6f0fa;
+      font-weight: 300;
+    }
+
+    /* 안구 스트레칭 팁 */
+    .eye-stretch-box {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      color: #a0aec0;
+      margin-bottom: 2.5rem;
+    }
+
+    .pw-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pw-input {
+      width: 170px;
+      height: 50px;
+      text-align: center;
+      font-size: 1.5rem;
+      letter-spacing: 10px;
+      border: 1px solid #4a5d4e;
+      background-color: #152019;
+      color: #ffffff;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .pw-btn {
+      width: 170px;
+      padding: 12px;
+      background-color: #3b5241;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .auto-unlock-info {
+      font-size: 0.8rem;
+      color: #718096;
+      margin-top: 10px;
+    }
+
+    /* ASMR 토글 버튼 */
+    .asmr-btn {
+      position: absolute;
+      top: 25px;
+      right: 25px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #cbd5e0;
+      padding: 8px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>🍱 오늘 뭐 먹지?</h1>
-        <p class="subtitle">점심 메뉴 고민, 버튼 하나로 해결하세요!</p>
+  <!-- 상단 통계 기록 바 -->
+  <div class="top-bar">
+    <div class="badge" id="todayStat">오늘 성공: 0분</div>
+    <div class="badge">🌱 디지털 디톡스</div>
+  </div>
 
-        <!-- 카테고리 필터 -->
-        <div class="category-group">
-            <button class="cat-btn active" onclick="setCategory('전체', this)">전체</button>
-            <button class="cat-btn" onclick="setCategory('한식', this)">한식</button>
-            <button class="cat-btn" onclick="setCategory('중식', this)">중식</button>
-            <button class="cat-btn" onclick="setCategory('일식', this)">일식</button>
-            <button class="cat-btn" onclick="setCategory('양식/기타', this)">양식/기타</button>
-        </div>
+  <!-- 시간 설정 및 카운트다운 화면 (화이트 패널) -->
+  <div class="container" id="setupScreen">
+    <h1>디지털 디톡스 타이머</h1>
+    <div class="subtitle">잠시 전자기기를 내려놓고 눈에게 휴식을 주세요</div>
 
-        <!-- 결과 표시 상자 -->
-        <div class="result-box">
-            <div class="menu-category" id="menu-cat">READY</div>
-            <div class="menu-name" id="menu-name">버튼을 눌러주세요!</div>
-        </div>
-
-        <!-- 추천 버튼 -->
-        <button class="pick-btn" onclick="pickRandomMenu()">🎲 점심 메뉴 추천받기</button>
-
-        <!-- 메뉴 추가 기능 -->
-        <div class="add-box">
-            <select id="new-cat">
-                <option value="한식">한식</option>
-                <option value="중식">중식</option>
-                <option value="일식">일식</option>
-                <option value="양식/기타">양식/기타</option>
-            </select>
-            <input type="text" id="new-name" placeholder="새 메뉴 이름 (예: 부대찌개)">
-            <button class="add-btn" onclick="addMenu()">추가</button>
-        </div>
+    <!-- 시간 입력 양식 -->
+    <div class="time-inputs" id="inputContainer">
+      <div class="input-group">
+        <input type="number" id="hours" min="0" max="23" value="0">
+        <label for="hours">시간</label>
+      </div>
+      <div class="input-group">
+        <input type="number" id="minutes" min="0" max="59" value="1">
+        <label for="minutes">분</label>
+      </div>
+      <div class="input-group">
+        <input type="number" id="seconds" min="0" max="59" value="10">
+        <label for="seconds">초</label>
+      </div>
     </div>
 
-    <script>
-        // 기본 점심 메뉴 데이터베이스
-        let menuList = [
-            { category: '한식', name: '김치찌개' },
-            { category: '한식', name: '된장찌개' },
-            { category: '한식', name: '제육볶음' },
-            { category: '한식', name: '비빔밥' },
-            { category: '한식', name: '국밥' },
-            { category: '중식', name: '짜장면' },
-            { category: '중식', name: '짬뽕' },
-            { category: '중식', name: '볶음밥' },
-            { category: '중식', name: '마라탕' },
-            { category: '일식', name: '돈까스' },
-            { category: '일식', name: '라멘' },
-            { category: '일식', name: '초밥' },
-            { category: '일식', name: '우동' },
-            { category: '양식/기타', name: '파스타' },
-            { category: '양식/기타', name: '햄버거' },
-            { category: '양식/기타', name: '샌드위치' },
-            { category: '양식/기타', name: '쌀국수' }
-        ];
+    <!-- 대형 카운트다운 디스플레이 -->
+    <div class="timer-display hidden" id="timerDisplay">00:01:10</div>
 
-        let selectedCategory = '전체';
-        let isSpinning = false;
+    <!-- 프로그래스 바 -->
+    <div class="progress-bar-bg hidden" id="progressBg">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
 
-        // 카테고리 변경 함수
-        function setCategory(category, btnElement) {
-            selectedCategory = category;
-            
-            // 모든 버튼에서 active 클래스 제거 후 클릭한 버튼에만 추가
-            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
-            btnElement.classList.add('active');
+    <button class="btn" id="startBtn" onclick="startTimer()">타이머 시작</button>
+  </div>
+
+  <!-- 화면 전체 경고 플래시 오버레이 -->
+  <div class="warning-overlay" id="warningOverlay"></div>
+
+  <!-- 눈이 편안한 숲속 잠금 화면 -->
+  <div class="lock-screen hidden" id="lockScreen">
+    <button class="asmr-btn" id="asmrBtn" onclick="toggleASMR()">🍃 자연음 켜기</button>
+    
+    <div class="tree-icon">🌳</div>
+
+    <div class="quote-box">
+      <p id="quoteDisplay"></p>
+    </div>
+
+    <div class="eye-stretch-box" id="eyeStretchDisplay">
+      👁️ <b>안구 휴식 팁:</b> 20초간 6m 이상 멀리 있는 사물을 바라보세요.
+    </div>
+
+    <div class="pw-container">
+      <input type="password" id="pwInput" class="pw-input" maxlength="4" placeholder="••••">
+      <button class="pw-btn" id="unlockBtn" onclick="checkPassword()">잠금 해제</button>
+      <div class="auto-unlock-info" id="autoUnlockText">30분 후 자동 해제됩니다</div>
+    </div>
+  </div>
+
+  <script>
+    const quotes = [
+      "전자기기를 잠시 내려놓고, 창밖의 푸른 자연을 둘러보는 것은 어떨까요?",
+      "눈을 감고 깊게 숨을 쉬어보세요. 진짜 세상은 화면 밖에 있습니다.",
+      "잠시 쉬어가도 괜찮습니다. 나무와 바람이 전하는 소리에 귀를 기울여보세요.",
+      "디지털 세상에서 벗어나 온전한 자신만의 정적을 느껴보세요.",
+      "스마트폰 너머의 계절 변화를 바라보세요. 자연은 언제나 당신을 기다립니다."
+    ];
+
+    const eyeStretches = [
+      "👁️ 눈을 감고 시계 방향으로 천천히 3번 굴려보세요.",
+      "👁️ 20초 동안 먼 곳의 초록색 물체나 하늘을 지긋이 바라보세요.",
+      "👁️ 따뜻하게 비빈 양 손바닥을 눈 위에 살포시 올려 온기를 전해보세요.",
+      "👁️ 눈을 깜빡깜빡 10번 천천히 반복하며 건조함을 풀어주세요."
+    ];
+
+    let timerId = null;
+    let autoUnlockCountdownId = null;
+    let totalSeconds = 0;
+    let remainingSeconds = 0;
+    let autoUnlockSeconds = 1800; // 30분
+    let isWarningPlayed = false;
+    let audioCtx = null;
+    let isAsmrPlaying = false;
+    let asmrNoiseNode = null;
+
+    let todayMinutes = parseInt(localStorage.getItem('detox_today_minutes')) || 0;
+    updateStatDisplay();
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    // 위이잉 상승 사이렌 소리 발생 함수
+    function playSirenSound(duration, startFreq, endFreq) {
+      if (!audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'sawtooth';
+        const now = audioCtx.currentTime;
+        osc.frequency.setValueAtTime(startFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, now + duration);
+
+        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + duration);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(now);
+        osc.stop(now + duration);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // 3초 동안 위이잉 소리 연속 출력 (요청대로 3초로 변경)
+    function play3SecSiren(startFreq, endFreq) {
+      let count = 0;
+      const interval = setInterval(() => {
+        playSirenSound(0.7, startFreq, endFreq);
+        count++;
+        if (count >= 3) clearInterval(interval); // 3회 = 3초
+      }, 1000);
+    }
+
+    // 잔잔한 자연음 토글
+    function toggleASMR() {
+      initAudio();
+      const btn = document.getElementById('asmrBtn');
+      if (isAsmrPlaying) {
+        if (asmrNoiseNode) asmrNoiseNode.stop();
+        isAsmrPlaying = false;
+        btn.textContent = "🍃 자연음 켜기";
+      } else {
+        const bufferSize = audioCtx.sampleRate * 2;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
         }
 
-        // 랜덤 메뉴 추첨 (슬롯머신 모션 효과 포함)
-        function pickRandomMenu() {
-            if (isSpinning) return;
+        asmrNoiseNode = audioCtx.createBufferSource();
+        asmrNoiseNode.buffer = buffer;
+        asmrNoiseNode.loop = true;
 
-            // 현재 카테고리에 맞는 메뉴만 필터링
-            const filteredMenu = selectedCategory === '전체' 
-                ? menuList 
-                : menuList.filter(item => item.category === selectedCategory);
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 400;
 
-            if (filteredMenu.length === 0) {
-                alert('해당 카테고리에 등록된 메뉴가 없습니다.');
-                return;
-            }
+        const gain = audioCtx.createGain();
+        gain.gain.value = 0.15;
 
-            isSpinning = true;
-            const catDisplay = document.getElementById('menu-cat');
-            const nameDisplay = document.getElementById('menu-name');
-            
-            let count = 0;
-            const maxCount = 15; // 롤링 횟수
-            
-            // 0.05초마다 무작위 메뉴를 빠르게 보여주는 애니메이션 효과
-            const spinner = setInterval(() => {
-                const tempIndex = Math.floor(Math.random() * filteredMenu.length);
-                catDisplay.innerText = filteredMenu[tempIndex].category;
-                nameDisplay.innerText = filteredMenu[tempIndex].name;
-                count++;
+        asmrNoiseNode.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
 
-                if (count >= maxCount) {
-                    clearInterval(spinner);
-                    // 최종 메뉴 결정
-                    const finalMenu = filteredMenu[Math.floor(Math.random() * filteredMenu.length)];
-                    catDisplay.innerText = finalMenu.category;
-                    nameDisplay.innerText = finalMenu.name;
-                    isSpinning = false;
-                }
-            }, 50);
+        asmrNoiseNode.start();
+        isAsmrPlaying = true;
+        btn.textContent = "🔊 자연음 끄기";
+      }
+    }
+
+    function formatTime(totalSec) {
+      const h = String(Math.floor(totalSec / 3600)).padStart(2, '0');
+      const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
+      const s = String(totalSec % 60).padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    }
+
+    function startTimer() {
+      initAudio();
+
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+
+      const h = parseInt(document.getElementById('hours').value) || 0;
+      const m = parseInt(document.getElementById('minutes').value) || 0;
+      const s = parseInt(document.getElementById('seconds').value) || 0;
+
+      totalSeconds = h * 3600 + m * 60 + s;
+      remainingSeconds = totalSeconds;
+
+      if (totalSeconds <= 0) {
+        alert("시간을 1초 이상 설정해 주세요.");
+        return;
+      }
+
+      document.getElementById('inputContainer').classList.add('hidden');
+      document.getElementById('startBtn').classList.add('hidden');
+      document.getElementById('timerDisplay').classList.remove('hidden');
+      document.getElementById('progressBg').classList.remove('hidden');
+
+      document.getElementById('timerDisplay').textContent = formatTime(remainingSeconds);
+      isWarningPlayed = false;
+
+      timerId = setInterval(() => {
+        remainingSeconds--;
+        document.getElementById('timerDisplay').textContent = formatTime(remainingSeconds);
+
+        const progressPercent = (remainingSeconds / totalSeconds) * 100;
+        document.getElementById('progressFill').style.width = `${progressPercent}%`;
+
+        if (remainingSeconds === 60 && !isWarningPlayed) {
+          triggerWarning();
         }
 
-        // 나만의 메뉴 추가 함수
-        function addMenu() {
-            const catInput = document.getElementById('new-cat').value;
-            const nameInput = document.getElementById('new-name').value.trim();
-
-            if (!nameInput) {
-                alert('메뉴 이름을 입력해주세요!');
-                return;
-            }
-
-            menuList.push({ category: catInput, name: nameInput });
-            alert(`'${nameInput}' (이)가 목록에 추가되었습니다!`);
-            document.getElementById('new-name').value = '';
+        if (remainingSeconds <= 0) {
+          clearInterval(timerId);
+          lockDevice();
         }
-    </script>
+      }, 1000);
+    }
+
+    // 1분 전 경고 (3초간 전체 반짝임 + 위이잉 소리)
+    function triggerWarning() {
+      isWarningPlayed = true;
+      document.getElementById('warningOverlay').style.display = 'block';
+      play3SecSiren(300, 1200);
+
+      // 3초 후 반짝임 오버레이 끄기
+      setTimeout(() => {
+        document.getElementById('warningOverlay').style.display = 'none';
+      }, 3000);
+    }
+
+    // 화면 잠금
+    function lockDevice() {
+      document.getElementById('warningOverlay').style.display = 'none';
+      document.getElementById('setupScreen').classList.add('hidden');
+
+      const addedMinutes = Math.round(totalSeconds / 60);
+      todayMinutes += addedMinutes;
+      localStorage.setItem('detox_today_minutes', todayMinutes);
+      updateStatDisplay();
+
+      document.getElementById('quoteDisplay').textContent = quotes[Math.floor(Math.random() * quotes.length)];
+      document.getElementById('eyeStretchDisplay').textContent = eyeStretches[Math.floor(Math.random() * eyeStretches.length)];
+
+      document.getElementById('lockScreen').classList.remove('hidden');
+
+      // 3초간 잠금음 재생
+      play3SecSiren(150, 600);
+
+      autoUnlockSeconds = 1800;
+      autoUnlockCountdownId = setInterval(() => {
+        autoUnlockSeconds--;
+        const autoM = Math.floor(autoUnlockSeconds / 60);
+        const autoS = autoUnlockSeconds % 60;
+        document.getElementById('autoUnlockText').textContent = `${autoM}분 ${autoS}초 후 자동 해제됩니다`;
+
+        if (autoUnlockSeconds <= 0) {
+          clearInterval(autoUnlockCountdownId);
+          unlockDevice();
+          alert("30분이 지나 화면 잠금이 자동으로 해제되었습니다.");
+        }
+      }, 1000);
+    }
+
+    // 비밀번호 체크 및 10초 신중 대기 지연
+    function checkPassword() {
+      const input = document.getElementById('pwInput').value;
+      if (input === "0000") {
+        const unlockBtn = document.getElementById('unlockBtn');
+        let delay = 10;
+        unlockBtn.disabled = true;
+
+        const delayInterval = setInterval(() => {
+          unlockBtn.textContent = `해제 중... (${delay}초)`;
+          delay--;
+          if (delay < 0) {
+            clearInterval(delayInterval);
+            unlockBtn.disabled = false;
+            unlockBtn.textContent = "잠금 해제";
+            unlockDevice();
+          }
+        }, 1000);
+      } else {
+        alert("비밀번호가 올바르지 않습니다.");
+        document.getElementById('pwInput').value = "";
+      }
+    }
+
+    // 잠금 해제
+    function unlockDevice() {
+      if (autoUnlockCountdownId) clearInterval(autoUnlockCountdownId);
+      if (isAsmrPlaying) toggleASMR();
+
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+
+      document.getElementById('lockScreen').classList.add('hidden');
+      document.getElementById('setupScreen').classList.remove('hidden');
+
+      document.getElementById('inputContainer').classList.remove('hidden');
+      document.getElementById('startBtn').classList.remove('hidden');
+      document.getElementById('timerDisplay').classList.add('hidden');
+      document.getElementById('progressBg').classList.add('hidden');
+      document.getElementById('pwInput').value = "";
+    }
+
+    function updateStatDisplay() {
+      document.getElementById('todayStat').textContent = `오늘 성공: ${todayMinutes}분`;
+    }
+  </script>
 </body>
 </html>
